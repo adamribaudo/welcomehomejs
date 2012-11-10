@@ -1,0 +1,103 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Welcome Home</title>
+  <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script src="js/jquery.rdio.js"></script>
+  <script src="js/rdioplayer.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script>
+      /*var interval = setInterval(function () {
+          console.log("sup");
+      }, 1000);*/
+
+      var users = [];
+      var pathWithUser = "oneuser.txt";
+      var pathWithoutUser = "nouser.txt";
+      var pathWithThreeUsers = "threeusers.txt";
+
+      function updateUsers(path) {
+          $.ajax({
+              url: path,
+              dataType: "json"
+          }).done(function (data) {
+              //Check to see if we're adding any users
+              for (var i in data) {
+                  if (!users[i]) {
+                      console.log("Adding user with Mac: " + i);
+                      if (data[i].displayname && data[i].rdiouserid)
+                          users[i] = { "displayname": data[i].displayname, "rdiouserid": data[i].rdiouserid };
+                      else
+                          users[i] = {};
+                  }
+              }
+
+              //Check to see if we're removing any users
+              for (var i in users) {
+                  if (!data[i]) {
+                      console.log("Removing user with mac: " + i);
+                      delete users[i];
+                  }
+              }
+
+              updateUsersView();
+          });
+      }
+
+      function updateUsersView() {
+          $("#userList").empty();
+          for (var i in users) {
+              if(users[i].rdiouserid)
+                $("#userList").append("<li>" + users[i].displayname + " (MAC: " + i + ")</li>");
+              else
+                  $("#userList").append("<li><em>Unknown User (MAC: " + i + ")</em><a href='#' class='btn btn-info'>Link User</a></li>");
+             
+          }
+          
+      }
+
+      $(document).ready(function () {
+
+          $("#btnReceiveThreeUsers").click(function () {
+              updateUsers(pathWithThreeUsers);
+          })
+          $("#btnReceiveOneUser").click(function () {
+              updateUsers(pathWithUser);
+          })
+          $("#btnReceiveNoUsers").click(function () {
+              updateUsers(pathWithoutUser);
+          })
+      });
+    
+  </script>
+</head>
+<body>
+<h1>Welcome Home!</h1>
+<a class="btn btn-primary" id="btnReceiveThreeUsers">Receive 3 Users</a>
+<a class="btn btn-primary" id="btnReceiveOneUser">Receive 1 User</a>
+<a class="btn btn-primary" id="btnReceiveNoUsers">Receive No Users</a>
+
+<div>
+    <span>Who's home?</span>
+    <ul id="userList"></ul>
+</div>
+  <div id="api"></div>
+  <img id="art" src="" height="200" width="200" style="float:left;margin-right:20px;">
+  <div>
+    <div><b>Track: </b><span id="track"></span></div>
+    <div><b>Album: </b><span id="album"></span></div>
+    <div><b>Artist: </b><span id="artist"></span></div>
+    <div><b>Position: </b>
+      <span style="display:inline-block;width:200px;border:1px solid black;">
+        <span id="position" style="display:inline-block;background-color:#666">&nbsp;</span>
+      </span></div>
+    <div>
+      <button id="previous">&lt;&lt;</button>
+      <button id="play">|&gt;</button>
+      <button id="pause">||</button>
+      <button id="next">&gt;&gt;</button>
+    </div>
+  </div>
+</body>
+</html>
